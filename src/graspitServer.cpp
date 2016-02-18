@@ -37,6 +37,8 @@
 #include "grasp.h"
 #include "contact.h"
 
+#include "ui/mainWindow.h"
+
 /*!
   Stub destructor.
 */
@@ -192,7 +194,7 @@ ClientSocket::readClient()
 #ifdef GRASPITDBG
     std::cout <<"Command parser line: "<<line << std::endl;
 #endif
-    
+    printf("Here we go\n");
     if (*strPtr == "getContacts") {
       strPtr++; if (strPtr == lineStrList.end()) continue;
       numData = (*strPtr).toInt(&ok); strPtr++;
@@ -225,7 +227,7 @@ ClientSocket::readClient()
     }
     
     else if (*strPtr == "getRobotName") {
-      strPtr++;
+      strPtr++; 
       if (readRobotIndList(robVec)) continue;
       numRobots = robVec.size();
       for (i=0;i<numRobots;i++)
@@ -241,13 +243,13 @@ ClientSocket::readClient()
     }
     
     else if (*strPtr == "moveDOFs") {
+      printf("Moving dofs...\n");
       strPtr++;
       readDOFVals();
     }
     
     else if (*strPtr == "render")
       graspItGUI->getIVmgr()->getViewer()->render();
-    
     else if (*strPtr == "setDOFForces") {
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -285,6 +287,46 @@ ClientSocket::readClient()
 #endif
       computeNewVelocities(time);
     }
+
+    else if(*strPtr == "loadWorld") {
+      strPtr++; if( strPtr == lineStrList.end() ) continue;
+      graspItGUI->getIVmgr()->emptyWorld();
+      graspItGUI->getIVmgr()->getWorld()->load(*strPtr);
+      graspItGUI->getMainWindow()->setMainWorld( graspItGUI->getIVmgr()->getWorld() );
+    }
+
+    else if(*strPtr == "moveHandTo") {
+      transf tf;
+      double vals[7];
+      for( int i = 0; i < 7; ++i ) {
+	strPtr++; if (strPtr == lineStrList.end()) {printf("CRAP! \n");} 
+	vals[i] = (*strPtr).toDouble(); 
+      }
+      
+      vec3 t(vals[0], vals[1], vals[2]);
+      Quaternion q(vals[3], vals[4], vals[5], vals[6]);
+      tf.set( q, t );  
+      graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->setTran(tf);
+      
+    }
+
+    else if(*strPtr == "moveObjectTo") {
+      transf tf;
+      double vals[7];
+      for( int i = 0; i < 7; ++i ) {
+	strPtr++; if (strPtr == lineStrList.end()) {printf("CRAP! \n");} 
+	vals[i] = (*strPtr).toDouble(); 
+      }
+      
+      vec3 t(vals[0], vals[1], vals[2]);
+      Quaternion q(vals[3], vals[4], vals[5], vals[6]);
+      tf.set( q, t );
+      printf("Moving object %s ...!\n",
+	     graspItGUI->getIVmgr()->getWorld()->getGB(0)->getName().toStdString().c_str() );
+      graspItGUI->getIVmgr()->getWorld()->getGB(0)->setTran(tf);
+      
+    }
+
     
   }
 }
@@ -464,7 +506,7 @@ ClientSocket::readDOFVals()
 
   val = new double[numDOF];
   stepby = new double[numDOF];
-
+  printf("Robot has %d dofs \n", rob->getNumDOF() );
   for (i=0;i<rob->getNumDOF();i++) {
 	if (strPtr == lineStrList.end()) return FAILURE;
 	val[i] = (*strPtr).toDouble(&ok);
@@ -646,6 +688,7 @@ GraspItServer::GraspItServer(Q_UINT16 port, int backlog,
 void
 GraspItServer::newConnection(int socket)
 {
+  printf("CALLED NEW CONNECTION \n");
   (void)new ClientSocket(socket, this);
 
 #ifdef GRASPITDBG
