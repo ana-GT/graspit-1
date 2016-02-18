@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<world>
+	 <graspableBody>
+		<filename>models/objects/ch3_shapes/cubic_cylinder.xml</filename> 
+		<transform> 
+			<fullTransform>(+1 0 0 0)[0 0 0]</fullTransform> 
+		</transform> 
+	 </graspableBody> 
+	 <robot>
+		 <filename>models/robots/Schunk/Schunk.xml</filename> 
+		 <dofValues>0 0 0 0 0 0 0 0</dofValues> 
+		 <transform> 
+			<fullTransform>(+1 0 0 0)[0 0 400]</fullTransform> 
+		 </transform> 
+	 </robot>
+	 <camera>
+		 <position>+512 +11 +92</position> 
+		 <orientation>0.49 0.48 0.51 0.51</orientation> 
+		 <focalDistance>501</focalDistance> 
+	 </camera>
+</world>
