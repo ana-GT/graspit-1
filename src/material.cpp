@@ -30,8 +30,8 @@
 
 double Cof[NUM_MATERIAL][NUM_MATERIAL];
 double KineticCof[NUM_MATERIAL][NUM_MATERIAL];
-char matNameList[NUM_MATERIAL][30] = {"frictionless","glass","metal","wood",
-				   "plastic","rubber","stone","invalid"};
+char matNameList[NUM_MATERIAL][30] = {"frictionless","glass","metal","plastic",
+				   "wood","rubber","stone","invalid"};
 
 materialT readMaterial(const char *matStr)
 {

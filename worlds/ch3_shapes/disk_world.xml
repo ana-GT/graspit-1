@@ -3,19 +3,25 @@
 	 <graspableBody>
 		<filename>models/objects/ch3_shapes/disk.xml</filename> 
 		<transform> 
-			<fullTransform>(+1 0 0 0)[0 0 0]</fullTransform> 
+			<fullTransform>(+1 0 0 0)[700 -200 900]</fullTransform> 
 		</transform> 
 	 </graspableBody> 
+	 <obstacle>
+		<filename>models/obstacles/ch3_shapes/LWA4_table.xml</filename>
+		<transform> 
+			<fullTransform>(+1 0 0 0)[500 101.6 0]</fullTransform> 
+		</transform> 
+	 </obstacle> 
 	 <robot>
 		 <filename>models/robots/Schunk/Schunk.xml</filename> 
 		 <dofValues>0 0 0 0 0 0 0 0</dofValues> 
 		 <transform> 
-			<fullTransform>(+1 0 0 0)[0 0 400]</fullTransform> 
+			<fullTransform>(+1 0 0 0)[700 -200 1200]</fullTransform> 
 		 </transform> 
 	 </robot>
 	 <camera>
-		 <position>+512 +11 +92</position> 
-		 <orientation>0.49 0.48 0.51 0.51</orientation> 
-		 <focalDistance>501</focalDistance> 
+		 <position>+3178 +334 +1822</position> 
+		 <orientation>0.36 0.418 0.60 0.57</orientation> 
+		 <focalDistance>2903</focalDistance> 
 	 </camera>
 </world>

@@ -185,10 +185,10 @@ World::~World()
 int
 World::getMaterialIdx(const QString &matName) const
 {
-	for (int i=0; i<numMaterials; i++) {
-		if (materialNames[i] == matName) return i;
-	}
-	return -1;
+  for (int i=0; i<numMaterials; i++) {
+    if (materialNames[i] == matName) { return i; }
+  }
+  return -1;
 }
 
 
@@ -314,8 +314,12 @@ World::readSettings()
 	int i,j,newNumMaterials;
 	double **newcofTable,**newkcofTable;
 	std::vector<QString> newMaterialNames;
-
 	setDefaults();
+
+	for( int i = 0; i < materialNames.size(); ++i ) {
+	  printf("** After set defaults: Material[%d]: %s \n", i,  materialNames[i].latin1());
+	}
+
 
 	settings.insertSearchPath(QSettings::Windows, COMPANY_KEY);
 
@@ -333,8 +337,8 @@ World::readSettings()
 	}
 
 	for (i=0;i<numMaterials;i++) {
+	       
 		newMaterialNames[i] = settings.readEntry(APP_KEY + QString("World/material%1").arg(i),materialNames[i]);
-
 		for (j=i;j<numMaterials;j++) {
 			newcofTable[i][j] = newcofTable[j][i] =
 				settings.readDoubleEntry(APP_KEY + QString("World/cof%1%2").arg(i).arg(j),cofTable[i][j]);
@@ -351,9 +355,9 @@ World::readSettings()
 				settings.readDoubleEntry(APP_KEY + QString("World/kcof%1%2").arg(i).arg(j));
 		}
 	}
+
 	for (;i<newNumMaterials;i++){
 		newMaterialNames.push_back(settings.readEntry(APP_KEY + QString("World/material%1").arg(i)));
-
 		for (j=i;j<newNumMaterials;j++) {
 			newcofTable[i][j] = newcofTable[j][i] =
 				settings.readDoubleEntry(APP_KEY + QString("World/cof%1%2").arg(i).arg(j));
@@ -371,6 +375,7 @@ World::readSettings()
 	free(cofTable);
 	free(kcofTable);
 	materialNames = newMaterialNames;
+
 	numMaterials = newNumMaterials;
 	cofTable = newcofTable;
 	kcofTable = newkcofTable;

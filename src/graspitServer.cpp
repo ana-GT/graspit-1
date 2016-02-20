@@ -36,6 +36,7 @@
 #include "robot.h"
 #include "grasp.h"
 #include "contact.h"
+#include "quality.h"
 
 #include "ui/mainWindow.h"
 
@@ -194,7 +195,6 @@ ClientSocket::readClient()
 #ifdef GRASPITDBG
     std::cout <<"Command parser line: "<<line << std::endl;
 #endif
-    printf("Here we go\n");
     if (*strPtr == "getContacts") {
       strPtr++; if (strPtr == lineStrList.end()) continue;
       numData = (*strPtr).toInt(&ok); strPtr++;
@@ -293,6 +293,19 @@ ClientSocket::readClient()
       graspItGUI->getIVmgr()->emptyWorld();
       graspItGUI->getIVmgr()->getWorld()->load(*strPtr);
       graspItGUI->getMainWindow()->setMainWorld( graspItGUI->getIVmgr()->getWorld() );
+
+      // See materials
+      // Hand material
+      std::vector<DynamicBody*> links;
+      graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getAllLinks(links);
+      for( int i = 0; i < links.size(); ++i ) {
+	std::cout << "Material for hand body " <<i<<": " << matNameList[links[i]->getMaterial()] <<
+		  " number: "<< links[i]->getMaterial() 
+		  << std::endl;
+      }
+      // Object material
+      std::cout << "Object material: "<<matNameList[graspItGUI->getIVmgr()->getWorld()->getGB(0)->getMaterial()] << " number: "<<graspItGUI->getIVmgr()->getWorld()->getGB(0)->getMaterial()<< std::endl;
+
     }
 
     else if(*strPtr == "moveHandTo") {
@@ -321,12 +334,46 @@ ClientSocket::readClient()
       vec3 t(vals[0], vals[1], vals[2]);
       Quaternion q(vals[3], vals[4], vals[5], vals[6]);
       tf.set( q, t );
-      printf("Moving object %s ...!\n",
-	     graspItGUI->getIVmgr()->getWorld()->getGB(0)->getName().toStdString().c_str() );
       graspItGUI->getIVmgr()->getWorld()->getGB(0)->setTran(tf);
       
     }
-
+    else if( *strPtr == "disableAllCollisions" ) {
+      graspItGUI->getIVmgr()->getWorld()->toggleAllCollisions(false);
+      printf("Disable all collisions \n");
+    }
+    else if( *strPtr == "enableAllCollisions" ) {
+      graspItGUI->getIVmgr()->getWorld()->toggleAllCollisions(true);
+      printf("Enable all collisions \n");
+    }
+    else if( *strPtr == "checkCollisions" ) {
+      bool b = graspItGUI->getIVmgr()->getWorld()->noCollision();
+      printf("Check collisions \n");
+      if(b) { QTextStream os(this); os <<1<< "\n"; } // true, no collision
+      else { QTextStream os(this); os <<0<< "\n"; }
+      
+    }
+    else if( *strPtr == "autoGrasp" ) {
+      graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->autoGrasp(true);
+      graspItGUI->getIVmgr()->getWorld()->updateGrasps();
+      printf("Autograsp done \n");
+    }
+    else if( *strPtr == "createEpsilonMetric" ) {
+      Grasp* g = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp();
+      QualEpsilon* qe = new QualEpsilon( g, QString("epsilon_1"), "L1 Norm" ) ;
+      g->addQM( qe );
+      printf("Create epsilon metric \n");
+    }
+    else if( *strPtr == "getEpsilonMetric" ) {
+      QualEpsilon* qe = 0;
+      qe = (QualEpsilon*) graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getQM(0);
+      
+      if( !qe ) { printf("Epsilon metric not created ! \n"); }
+      double e1 = qe->evaluate();
+      printf("Sending back %f \n", e1);
+      QTextStream os(this);
+      os << e1 << "\n";
+      printf("GEt epsilon metric \n");
+    }
     
   }
 }
@@ -688,7 +735,6 @@ GraspItServer::GraspItServer(Q_UINT16 port, int backlog,
 void
 GraspItServer::newConnection(int socket)
 {
-  printf("CALLED NEW CONNECTION \n");
   (void)new ClientSocket(socket, this);
 
 #ifdef GRASPITDBG
