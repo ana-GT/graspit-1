@@ -339,15 +339,12 @@ ClientSocket::readClient()
     }
     else if( *strPtr == "disableAllCollisions" ) {
       graspItGUI->getIVmgr()->getWorld()->toggleAllCollisions(false);
-      printf("Disable all collisions \n");
     }
     else if( *strPtr == "enableAllCollisions" ) {
       graspItGUI->getIVmgr()->getWorld()->toggleAllCollisions(true);
-      printf("Enable all collisions \n");
     }
     else if( *strPtr == "checkCollisions" ) {
       bool b = graspItGUI->getIVmgr()->getWorld()->noCollision();
-      printf("Check collisions \n");
       if(b) { QTextStream os(this); os <<1<< "\n"; } // true, no collision
       else { QTextStream os(this); os <<0<< "\n"; }
       
@@ -355,13 +352,12 @@ ClientSocket::readClient()
     else if( *strPtr == "autoGrasp" ) {
       graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->autoGrasp(true);
       graspItGUI->getIVmgr()->getWorld()->updateGrasps();
-      printf("Autograsp done \n");
     }
     else if( *strPtr == "createEpsilonMetric" ) {
       Grasp* g = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp();
       QualEpsilon* qe = new QualEpsilon( g, QString("epsilon_1"), "L1 Norm" ) ;
       g->addQM( qe );
-      printf("Create epsilon metric \n");
+
     }
     else if( *strPtr == "getEpsilonMetric" ) {
       QualEpsilon* qe = 0;
@@ -369,10 +365,8 @@ ClientSocket::readClient()
       
       if( !qe ) { printf("Epsilon metric not created ! \n"); }
       double e1 = qe->evaluate();
-      printf("Sending back %f \n", e1);
       QTextStream os(this);
       os << e1 << "\n";
-      printf("GEt epsilon metric \n");
     }
     
   }
