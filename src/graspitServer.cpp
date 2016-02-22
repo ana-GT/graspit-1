@@ -357,7 +357,11 @@ ClientSocket::readClient()
       Grasp* g = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp();
       QualEpsilon* qe = new QualEpsilon( g, QString("epsilon_1"), "L1 Norm" ) ;
       g->addQM( qe );
-
+    }
+    else if( *strPtr == "createVolumeMetric" ) {
+      Grasp* g = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp();
+      QualVolume* qv = new QualVolume( g, QString("volume_1"), "L1 Norm" ) ;
+      g->addQM( qv );
     }
     else if( *strPtr == "getEpsilonMetric" ) {
       QualEpsilon* qe = 0;
@@ -367,7 +371,17 @@ ClientSocket::readClient()
       double e1 = qe->evaluate();
       QTextStream os(this);
       os << e1 << "\n";
+    } // We add this AFTER EPSILON, SO WE CALL IT WITH INDEX 1!!!!
+    else if( *strPtr == "getVolumeMetric" ) {
+      QualVolume* qv = 0;
+      qv = (QualVolume*) graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getQM(1);
+      
+      if( !qv ) { printf("Volume metric not created ! \n"); }
+      double e2 = qv->evaluate();
+      QTextStream os(this);
+      os << e2 << "\n";
     }
+
     
   }
 }
